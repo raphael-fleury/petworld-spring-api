@@ -1,6 +1,10 @@
 package com.petworld.api.entities;
 
 import java.util.Date;
+import java.util.UUID;
+
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.UuidGenerator;
 
 import jakarta.persistence.*;
 
@@ -16,8 +20,8 @@ public class Appointment {
     @ManyToOne private Veterinary veterinary;
     @ManyToOne private Pet pet;
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Id @UuidGenerator @ColumnDefault("RANDOM_UUID()")
+    private UUID id;
 
     private Date date;
 

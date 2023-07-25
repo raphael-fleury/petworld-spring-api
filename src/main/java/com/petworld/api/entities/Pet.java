@@ -2,6 +2,11 @@ package com.petworld.api.entities;
 
 import jakarta.persistence.*;
 
+import java.util.UUID;
+
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.UuidGenerator;
+
 import com.petworld.api.entities.enums.Sex;
 
 import lombok.AllArgsConstructor;
@@ -15,8 +20,8 @@ public class Pet {
     @ManyToOne
     private Customer owner;
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Id @UuidGenerator @ColumnDefault("RANDOM_UUID()")
+    private UUID id;
     private String name;
     private String species;
     private String breed;
