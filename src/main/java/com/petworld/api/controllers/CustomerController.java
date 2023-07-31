@@ -42,12 +42,13 @@ public class CustomerController {
 
     @GetMapping("/{id}")
     public ResponseEntity<CustomerResponseDTO> getById(@PathVariable UUID id) {
-        var customer = customerRepository.findById(id).get();
+        var optional = customerRepository.findById(id);
 
-        if (customer == null)
+        if (optional.isEmpty())
             return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(new CustomerResponseDTO(customer));
+        var body = new CustomerResponseDTO(optional.get());
+        return ResponseEntity.ok(body);
     }
 
     @PostMapping @Transactional
@@ -66,22 +67,24 @@ public class CustomerController {
 
     @PutMapping("/{id}") @Transactional
     public ResponseEntity<CustomerResponseDTO> put(@PathVariable UUID id, @RequestBody CustomerInsertDTO dto) {
-        var customer = customerRepository.findById(id).get();
+        var optional = customerRepository.findById(id);
 
-        if (customer == null)
+        if (optional.isEmpty())
             return ResponseEntity.notFound().build();
 
+        var customer = optional.get();
         BeanUtils.copyProperties(dto, customer);
         return ResponseEntity.ok(new CustomerResponseDTO(customer));
     }
 
     @DeleteMapping("/{id}") @Transactional
     public ResponseEntity<CustomerResponseDTO> delete(@PathVariable UUID id) {
-        var customer = customerRepository.findById(id).get();
+        var optional = customerRepository.findById(id);
 
-        if (customer == null)
+        if (optional.isEmpty())
             return ResponseEntity.notFound().build();
 
+        var customer = optional.get();
         customerRepository.delete(customer);
         return ResponseEntity.ok(new CustomerResponseDTO(customer));
     }
