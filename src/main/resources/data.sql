@@ -1,4 +1,4 @@
-SET @clinicId1 = RANDOM_UUID();
+SET @clinicId1 = '2c2f831c-9c83-4596-9082-06f250c0b7a8';
 INSERT INTO CLINIC(ID, CODE, EMAIL, NAME, PASSWORD) VALUES(@clinicId1, 'B3C0L0', 'admin@petz.com', 'Petz', '12345678');
 
 SET @customerId1 = RANDOM_UUID();
