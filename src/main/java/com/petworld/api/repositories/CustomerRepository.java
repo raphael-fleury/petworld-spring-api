@@ -12,5 +12,4 @@ import com.petworld.api.entities.Customer;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, UUID> {
     Page<Customer> findByClinicId(UUID clinicId, Pageable pageable);
-    Customer findByIdAndClinicId(UUID id, UUID clinicId);
 }

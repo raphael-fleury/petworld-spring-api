@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.petworld.api.dto.customer.CustomerInsertDTO;
+import com.petworld.api.dto.customer.CustomerResponseDTO;
 import com.petworld.api.entities.Customer;
 import com.petworld.api.repositories.ClinicRepository;
 import com.petworld.api.repositories.CustomerRepository;
@@ -35,52 +35,54 @@ public class CustomerController {
     @Autowired private ClinicRepository clinicRepository;
 
     @GetMapping
-    public Page<Customer> getAll(Pageable pageable) {
-        return customerRepository.findByClinicId(CLINIC_ID, pageable);
+    public Page<CustomerResponseDTO> getAll(Pageable pageable) {
+        var page = customerRepository.findByClinicId(CLINIC_ID, pageable);
+        return page.map(CustomerResponseDTO::new);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Customer> getById(@PathVariable UUID id) {
-        var customer = customerRepository.findByIdAndClinicId(id, CLINIC_ID);
+    public ResponseEntity<CustomerResponseDTO> getById(@PathVariable UUID id) {
+        var customer = customerRepository.findById(id).get();
 
         if (customer == null)
             return ResponseEntity.notFound().build();
 
-        return ResponseEntity.ok(customer);
+        return ResponseEntity.ok(new CustomerResponseDTO(customer));
     }
 
     @PostMapping @Transactional
-    public ResponseEntity<Customer> post(@RequestBody @Valid CustomerInsertDTO dto) {
+    public ResponseEntity<CustomerResponseDTO> post(@RequestBody @Valid CustomerInsertDTO dto) {
         var customer = new Customer();
         BeanUtils.copyProperties(dto, customer);
         
         var clinic = clinicRepository.findById(CLINIC_ID).get();
         customer.setClinic(clinic);
 
+        var entity = customerRepository.save(customer);
         return ResponseEntity
             .status(HttpStatus.CREATED)
-            .body(customerRepository.save(customer));
+            .body(new CustomerResponseDTO(entity));
     }
 
     @PutMapping("/{id}") @Transactional
-    public ResponseEntity<Customer> put(@PathVariable UUID id, @RequestBody CustomerInsertDTO dto) {
-        var customer = customerRepository.findByIdAndClinicId(id, CLINIC_ID);
+    public ResponseEntity<CustomerResponseDTO> put(@PathVariable UUID id, @RequestBody CustomerInsertDTO dto) {
+        var customer = customerRepository.findById(id).get();
 
         if (customer == null)
             return ResponseEntity.notFound().build();
 
         BeanUtils.copyProperties(dto, customer);
-        return ResponseEntity.ok(customer);
+        return ResponseEntity.ok(new CustomerResponseDTO(customer));
     }
 
     @DeleteMapping("/{id}") @Transactional
-    public ResponseEntity<Customer> delete(@PathVariable UUID id) {
-        var customer = customerRepository.findByIdAndClinicId(id, CLINIC_ID);
+    public ResponseEntity<CustomerResponseDTO> delete(@PathVariable UUID id) {
+        var customer = customerRepository.findById(id).get();
 
         if (customer == null)
             return ResponseEntity.notFound().build();
 
         customerRepository.delete(customer);
-        return ResponseEntity.ok(customer);
+        return ResponseEntity.ok(new CustomerResponseDTO(customer));
     }
 }
